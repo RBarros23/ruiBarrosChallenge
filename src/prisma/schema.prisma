@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PoiStatus {
+  ONLINE
+  OFFLINE
+  MAINTENANCE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model POI {
+  id          String    @id @default(uuid())
+  name        String
+  status      PoiStatus
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt 
+  address     Address?
+  openingHours OpeningHours[]
+  pumps       Pump[]
+}
+
+model Address {
+  id          String  @id @default(uuid())
+  country     String
+  zipCode     String
+  city        String
+  street      String
+  houseNumber String
+  poiId       String  @unique
+  poi         POI     @relation(fields: [poiId], references: [id], onDelete: Cascade)
+}
+
+model OpeningHours {
+  id          String    @id @default(uuid())
+  dayOfWeek   DayOfWeek
+  openTime    String    
+  closeTime   String    
+  isClosed    Boolean   @default(false)
+  poiId       String
+  poi         POI       @relation(fields: [poiId], references: [id], onDelete: Cascade)
+}
+
+model Pump {
+  id          String    @id @default(uuid())
+  pumpName    String
+  poiId       String
+  poi         POI       @relation(fields: [poiId], references: [id], onDelete: Cascade)
+  fuelProducts FuelProduct[]
+}
+
+model FuelProduct {
+  id          String    @id @default(uuid())
+  name        String    
+  pumpId      String
+  pump        Pump      @relation(fields: [pumpId], references: [id], onDelete: Cascade)
+  prices      Price[]
+}
+
+model Price {
+  id          String    @id @default(uuid())
+  amount      Float
+  currency    String    
+  fuelProductId String
+  fuelProduct   FuelProduct @relation(fields: [fuelProductId], references: [id], onDelete: Cascade)
+}
