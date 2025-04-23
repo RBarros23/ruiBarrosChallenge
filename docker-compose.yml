@@ -20,7 +20,7 @@ services:
       sh -c "
         echo 'Waiting for database...' &&
         npx prisma generate --schema=src/prisma/schema.prisma &&
-        npx prisma migrate deploy --schema=src/prisma/schema.prisma &&
+        npx prisma db push --schema=src/prisma/schema.prisma &&
         node dist/server.js
       "
   db:
